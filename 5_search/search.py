@@ -3,10 +3,23 @@ from langchain_core.documents import Document
 import openai
 import pickle
 from pathlib import Path
-
 from langchain_community.document_loaders import TextLoader
+from pprint import pprint
+
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
 client = openai.Client()
+
+
+# 비용 계산 함수
+def print_prices(input_tokens: int, output_tokens: int) -> None:
+    input_price = (input_tokens * 0.150 / 1_000_000) * 1_500
+    output_price = (output_tokens * 0.600 / 1_000_000) * 1_500
+    print("input: tokens {}, krw {:.4f}".format(input_tokens, input_price))
+    print("output: tokens {}, krw {:4f}".format(output_tokens, output_price))
+
+
 
 # 문서 변환
 def load() -> List[Document]:
@@ -28,10 +41,8 @@ def split(src_doc_list: List[Document]) -> List[Document]:
             )
     return new_doc_list
 
+# 문서 임베딩 : 문서를 벡터 형태로 변환
 class VectorStore(list):
-    # 지식에 사용한 임베딩 모델과 질문에 사용할 임베딩 모델은 동일해야만 합니다.
-    # 각각 임베딩 모델명을 지정하지 않고, 임베딩 모델명을 클래스 변수로 선언하여
-    # 모델명 변경의 용이성을 확보합니다.
     embedding_model = "text-embedding-3-small"
 
     @classmethod
@@ -52,35 +63,46 @@ class VectorStore(list):
 
         return vector_store
 
-        
-
-# 벡터 스토어 문서/임베딩 데이터를 지정 경로에 파일로 저장
     def save(self, vector_store_path: Path) -> None: 
-        """
-        벡터 스토어 문서/임베딩 데이터를 지정 경로에 파일로 저장
-        """
         with vector_store_path.open("wb") as f:
-            # 리스트(self)를 pickle 포맷으로 파일(f)에 저장
-            # dump : 객체를 파일에 저장(덮어쓰기)
             pickle.dump(self, f)
     @classmethod
     def load(cls, vector_store_path: Path) -> "VectorStore":
-        """
-        지정 경로의 파일을 읽어서 벡터 스토어 문서/임베딩 데이터 복원
-        """
         with vector_store_path.open("rb") as f:
             return pickle.load(f)
+      
+      
+    def search(self, question: str, k: int = 4) -> List[Document]:
+        """
+        질의 문자열을 받아서, 벡터 스토어에서 유사 문서를 최대 k개 반환
+        """
 
+        # 질문 문자열을 임베딩 벡터 배열로 변환
+        response = client.embeddings.create(
+            model=self.embedding_model,
+            input=question,
+        )
+        question_embedding = response.data[0].embedding  # 1536 차원, float 배열
 
+        # VectorStore 내에 저장된 모든 벡터 데이터를 리스트로 추출
+        embedding_list = [row["embedding"] for row in self]
+
+        # 모든 문서와 코사인 유사도 계산
+        similarities = cosine_similarity([question_embedding], embedding_list)[0]
+        # 유사도가 높은 순으로 정렬하여 k 개 선택
+        top_indices = np.argsort(similarities)[::-1][:k]
+
+        # 상위 k 개 문서를 리스트로 반환
+        return [
+            self[idx]["document"].model_copy()
+            for idx in top_indices
+        ]
 
 
 def main():
-    # Path(__file__).parent : 현재 파일이 있는 디렉토리를 기준으로 경로 설정
     current_dir = Path(__file__).parent 
     vector_store_path = current_dir / "vector_store.pickle"
 
-    # 지정 경로에 파일이 없으면
-    # 문서를 로딩하고 분할하여 벡터 데이터를 생성하고 해당 경로에 저장합니다.
     if not vector_store_path.is_file():
         doc_list = load()
         print(f"loaded {len(doc_list)} documents")
@@ -89,15 +111,40 @@ def main():
         vector_store = VectorStore.make(doc_list)
         vector_store.save(vector_store_path)
         print(f"created {len(vector_store)} items in vector store")
-     # 지정 경로에 파일이 있으면, 로딩하여 VectorStore 객체를 복원합니다.
     else:
         vector_store = VectorStore.load(vector_store_path)
         print(f"loaded {len(vector_store)} items in vector store")
 
-    # TODO: RAG를 통해 지식에 기반한 AI 답변을 구해보겠습니다.
+    # 1. RAG를 수행할 질문을 먼전 정의
     question = "빽다방 카페인이 높은 음료와 가격은?"
     print(f"RAG를 통해 '{question}' 질문에 대해서 지식에 기반한 AI 답변을 구해보겠습니다.")
 
+    # 2. vector_store에서 질문에 대한 유사 문서 검색
+    search_doc_list: List[Document] = vector_store.search(question)
+    pprint(search_doc_list)
+
+    print("## 지식 ##")
+    지식: str = str(search_doc_list)
+    print(repr(지식))
+
+    # 3. prompt 형식으로 질문에 대한 답변 생성
+    res = client.chat.completions.create(
+    messages=[
+        {
+            "role": "system",
+            "content": f"넌 AI Assistant. 모르는 건 모른다고 대답.\n\n[[빽다방 메뉴 정보]]\n{지식}",
+        },
+        {
+            "role": "user",
+            "content": question,
+        },
+    ],
+    model="gpt-4o-mini",
+    temperature=0,
+)
+    print()
+    print("[AI]", res.choices[0].message.content)
+    print_prices(res.usage.prompt_tokens, res.usage.completion_tokens)
 
 if __name__ == "__main__":
     main()
