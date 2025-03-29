@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>튜토리얼 #02</title>
+    <script src="//unpkg.com/htmx.org@2.0.4"></script>
+
+    <link href="//cdn.jsdelivr.net/npm/daisyui@latest/dist/full.min.css" rel="stylesheet" type="text/css"/>
+    <script src="//cdn.tailwindcss.com"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+</head>
+
+<body class="min-h-screen">
+<nav class="bg-gray-800 p-4 w-full z-50">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-white text-2xl font-bold">
+            <a href="/" class="hover:text-gray-300">파이썬사랑방</a>
+        </h1>
+        <ul class="flex space-x-4 text-white">
+            {% if not user.is_authenticated %}
+                <li><a href="{% url 'accounts:signup' %}" class="hover:text-gray-300">회원가입</a></li>
+                <li><a href="{% url 'accounts:login' %}" class="hover:text-gray-300">로그인</a></li>
+            {% else %}
+                <li><a href="{% url 'accounts:profile' %}" class="hover:text-gray-300">프로필</a></li>
+                <li>
+                    <form action="/accounts/logout/" method="post" class="inline-block">
+                        {% csrf_token %}
+                        <button type="submit" class="hover:text-gray-300">로그아웃</button>
+                    </form>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<main class="overflow-y-hidden flex">
+    {% block main %}
+    {% endblock %}
+</main>
+</body>
+
+</html>
