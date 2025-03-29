@@ -2,8 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.html import format_html
 
-from chat.ai import make_ai_message
-
+from chat.ai import ask_paikdabang
 
 def index(request):
     return render(request, "chat/index.html")
@@ -13,8 +12,7 @@ def reply(request):
     if request.method == "POST":
         human_message = request.POST.get("message", "")
 
-        system_prompt = "당신은 친절한 AI 어시스턴트입니다."
-        ai_message = make_ai_message(system_prompt, human_message)
+        ai_message = ask_paikdabang(human_message)
 
         # https://daisyui.com/components/chat/
         return HttpResponse(
