@@ -13,7 +13,7 @@
 - 활용단계
 5. 지식 검색 (Search) 및 LLM 요청/응답
 <image src="image/rag.png">
-
+출처 : https://python.langchain.com/docs/tutorials/rag/
 
 ---
 ### OpenAI API 가격 (2025년 1월 기준)
