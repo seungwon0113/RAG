@@ -1,70 +1,85 @@
+import logging
+from typing import Union, AsyncGenerator, Optional
+
 import openai
 from django.conf import settings
+
+# 비동기 처리
+from openai import AsyncStream
+from openai.types.chat import ChatCompletion, ChatCompletionChunk
+
 from . import rag
 
-# 로깅 라이브러리
-from colorlog import getLogger
+logger = logging.getLogger(__name__)
 
-logger = getLogger(__name__)
-
-# 명시적으로 OPENAI_API_KEY 설정을 지정합니다.
-client = openai.Client(api_key=settings.OPENAI_API_KEY)
+sync_client = openai.Client(api_key=settings.OPENAI_API_KEY)
+async_client = openai.AsyncClient(api_key=settings.OPENAI_API_KEY)
 
 
-# def make_ai_message(system_prompt: str, human_message: str) -> str:
-#     completion = client.chat.completions.create(
-#         model="gpt-4o-mini",
-#         messages=[
-#             {"role": "system", "content": system_prompt},
-#             {"role": "user", "content": human_message},
-#         ],
-#     )
-#     ai_message = completion.choices[0].message.content
+def make_ai_message(system_prompt: str, human_message: str) -> str:
+    completion = sync_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": human_message},
+        ],
+    )
+    ai_message = completion.choices[0].message.content
 
-#     return ai_message
+    return ai_message
 
 
 class PaikdabangAI:
-    # 서버 시작할 때에만 1회 호출되어, 벡터 스토어 파일을 로딩합니다.
     def __init__(self):
         try:
             self.vector_store = rag.VectorStore.load(settings.VECTOR_STORE_PATH)
-            # print(f"Loaded vector store {len(self.vector_store)} items")
             logger.debug("Loaded vector store %s items", len(self.vector_store))
-
         except FileNotFoundError as e:
-            # print(f"Failed to load vector store: {e}")
             logger.error("Failed to load vector store: %s", e)
             self.vector_store = rag.VectorStore()
-
-    # 매 AI 답변을 요청받을 때마다 호출됩니다.
-    def __call__(self, question: str) -> str:
-        # 답변과 유사한 지식을 찾습니다.
+    
+    # 비동기 처리
+    async def get_response(self, question: str, stream: bool = False) -> Union[
+        ChatCompletion,  # 동기 OpenAI API 호출 시
+        AsyncStream[ChatCompletionChunk],  # 비동기 OpenAI API 호출 시
+    ]:
         search_doc_list = self.vector_store.search(question)
-        # 찾은 지식을 문자열로 변환합니다.
         지식 = "\n\n".join(doc.page_content for doc in search_doc_list)
 
-        res = client.chat.completions.create(
+        return await async_client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    # 지식을 포함한 시스템 프롬프트를 생성합니다.
                     "content": f"넌 AI Assistant. 모르는 건 모른다고 대답.\n\n[[빽다방 메뉴 정보]]\n{지식}",
                 },
                 {
                     "role": "user",
-                    # 커밋에서는 질문이 하드코딩되어있습니다.
                     "content": question,
                 },
             ],
             model="gpt-4o-mini",
             temperature=0,
+            stream=stream,
         )
-        ai_message = res.choices[0].message.content
 
+    # 비동기. 한 번에 전체 응답을 반환
+    async def __call__(self, question: str) -> str:
+        return await self.ainvoke(question)
+
+    # 비동기. 한 번에 전체 응답을 반환
+    async def ainvoke(self, question: str) -> str:
+        res: ChatCompletion
+        res = await self.get_response(question, stream=False)
+        ai_message = res.choices[0].message.content
         return ai_message
 
+    # 비동기. 응답이 생성되는 대로 점진적으로 반환
+    async def astream(self, question: str) -> AsyncGenerator[Optional[str]]:
+        res: AsyncStream[ChatCompletionChunk]
+        res = await self.get_response(question, stream=True)
+        async for chunk in res:
+            ai_message_chunk: str = chunk.choices[0].delta.content
+            yield ai_message_chunk
 
-# 함수처럼 사용할 수 있는 인스턴스를 생성합니다.
-# 인자로 질문 문자열 인자 하나만 받습니다.
+
 ask_paikdabang = PaikdabangAI()
