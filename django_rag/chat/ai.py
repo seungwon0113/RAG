@@ -2,6 +2,10 @@ import openai
 from django.conf import settings
 from . import rag
 
+# 로깅 라이브러리
+from colorlog import getLogger
+
+logger = getLogger(__name__)
 
 # 명시적으로 OPENAI_API_KEY 설정을 지정합니다.
 client = openai.Client(api_key=settings.OPENAI_API_KEY)
@@ -25,9 +29,12 @@ class PaikdabangAI:
     def __init__(self):
         try:
             self.vector_store = rag.VectorStore.load(settings.VECTOR_STORE_PATH)
-            print(f"Loaded vector store {len(self.vector_store)} items")
+            # print(f"Loaded vector store {len(self.vector_store)} items")
+            logger.debug("Loaded vector store %s items", len(self.vector_store))
+
         except FileNotFoundError as e:
-            print(f"Failed to load vector store: {e}")
+            # print(f"Failed to load vector store: {e}")
+            logger.error("Failed to load vector store: %s", e)
             self.vector_store = rag.VectorStore()
 
     # 매 AI 답변을 요청받을 때마다 호출됩니다.

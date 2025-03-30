@@ -6,6 +6,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import openai
 from django.conf import settings
+from colorlog import getLogger
+
+logger = getLogger(__name__)
 
 
 client = openai.Client(api_key=settings.OPENAI_API_KEY)
@@ -59,7 +62,8 @@ class VectorStore(list):
     def save(self, vector_store_path: Path) -> None:
         with vector_store_path.open("wb") as f:
             pickle.dump(self, f)
-            print(f"saved vector store to {vector_store_path}")
+            # print(f"saved vector store to {vector_store_path}")
+            logger.debug("saved vector store to %s", vector_store_path)
 
     def search(self, question: str, top_k: int = 4) -> List[Document]:
         # pip install -U scikit-learn

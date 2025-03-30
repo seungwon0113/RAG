@@ -138,3 +138,41 @@ VECTOR_STORE_PATH = env.str(
     "VECTOR_STORE_PATH",
     default=(BASE_DIR / "pickle" / "vector_store.pickle"),
 )
+
+# colorlog 설정
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,  # 기본 로깅을 비활성화하지 않음
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    "formatters": {
+        "color": {
+            "()": "colorlog.ColoredFormatter",
+            "format": "%(log_color)s[%(asctime)s] %(message)s",
+            "log_colors": {
+                "DEBUG": "cyan",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "bold_red",
+            },
+        },
+    },
+    "handlers": {
+        "debug_console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "filters": ["require_debug_true"],
+            "formatter": "color",
+        },
+    },
+    "loggers": {
+        "chat": {
+            "handlers": ["debug_console"],
+            "level": "DEBUG",
+        }
+    },
+}

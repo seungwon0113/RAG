@@ -1,0 +1,20 @@
+{# https://daisyui.com/components/chat/ #}
+<div>
+    <div class="chat chat-start">
+        <div class="chat-bubble">{{ human_message }}</div>
+    </div>
+    <div class="markdown hidden">{{ ai_message }}</div>
+    <div class="chat chat-end">
+        <div class="chat-bubble ai"></div>
+    </div>
+    <script>
+      (() => {
+        const mdText = document.currentScript.parentElement.querySelector(".markdown")?.textContent;
+        const aiEl = document.currentScript.parentElement.querySelector(".ai");
+        if (mdText && aiEl && !aiEl.dataset.mdProcessed) {
+          aiEl.innerHTML = window.markdownToHtml(mdText);
+          aiEl.dataset.mdProcessed = "true";
+        }
+      })();
+    </script>
+</div>

@@ -6,3 +6,4 @@ django-debug-toolbar
 django-environ
 django-extensions
 
+colorlog
