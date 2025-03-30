@@ -34,3 +34,4 @@
 | OpenAI gpt-o1 | $0.15 | $60.0 |
 | OpenAI gpt-4o-audio-preview | $40.0 | $80.0 |
 
+학습 출처 : https://ai.pyhub.kr/rag-01/
