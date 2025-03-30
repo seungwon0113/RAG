@@ -78,7 +78,14 @@ ASGI_APPLICATION = "mysite.asgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'rag_db',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': '5432',
+    }
 }
 
 
