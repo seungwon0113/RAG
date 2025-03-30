@@ -74,7 +74,7 @@ class PaikdabangAI:
         return ai_message
 
     # 비동기. 응답이 생성되는 대로 점진적으로 반환
-    async def astream(self, question: str) -> AsyncGenerator[Optional[str]]:
+    async def astream(self, question: str) -> AsyncGenerator[Optional[str], None]:
         res: AsyncStream[ChatCompletionChunk]
         res = await self.get_response(question, stream=True)
         async for chunk in res:

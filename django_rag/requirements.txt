@@ -7,3 +7,11 @@ django-environ
 django-extensions
 
 colorlog
+
+# 추가할 패키지들
+psycopg2-binary
+pgvector
+langchain
+openai
+python-dotenv
+scikit-learn
