@@ -1,38 +1,47 @@
 {% extends "base.html" %}
 
 {% block main %}
-
-    <div class="flex flex-col h-[calc(100vh-4rem)] w-full p-2"
+    <div class="flex flex-col h-[calc(100vh-5rem)] w-full max-w-4xl mx-auto p-4"
          x-data="{ enable: true }"
          @enable="enable = true"
          @disable="enable = false">
 
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2" style="color: white;">AI 어시스턴트와 대화하기</h2>
+            <p class="text-gray-600" style="color: white;">질문을 입력하시면 AI가 답변해드립니다</p>
+        </div>
+
         <div id="messages"
-             class="flex-1 overflow-y-auto"
+             class="flex-1 overflow-y-auto space-y-4 px-4"
              hx-on::after-settle="
                  this.scrollTo({ top: this.scrollHeight, behavior: 'smooth' });
-                 {# htmx.trigger(this, 'enable'); #}
              ">
         </div>
 
-        <form id="form"
-              hx-ext="streaming-html"
-              hx-post="{% url 'chat:reply' %}"
-              hx-target="#messages"
-              hx-swap="beforeend"
-              hx-on::before-request="htmx.trigger(this, 'disable');"
-              {# hx-on::after-request="this.reset();" #}
-              hx-on:chunk="if (event.detail.count === 0) { this.reset(); htmx.trigger(this, 'enable'); }"
-        >
-            {% csrf_token %}
-            <input type="text" name="message"
-                   class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
-                   autocomplete="off"
-                   autofocus="autofocus"
-                   placeholder="메시지를 입력하세요..."
-                   :disabled="!enable"
-                   x-effect="if(enable) $el.focus()"/>
-        </form>
+        <div class="border-t border-gray-200 pt-4 bg-white/50 backdrop-blur-sm rounded-lg mt-4">
+            <form id="form"
+                  class="relative"
+                  hx-ext="streaming-html"
+                  hx-post="{% url 'chat:reply' %}"
+                  hx-target="#messages"
+                  hx-swap="beforeend"
+                  hx-on::before-request="htmx.trigger(this, 'disable');"
+                  hx-on:chunk="if (event.detail.count === 0) { this.reset(); htmx.trigger(this, 'enable'); }">
+                {% csrf_token %}
+                <input type="text" 
+                       name="message"
+                       class="w-full p-4 pr-12 rounded-xl border border-gray-200 shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                       autocomplete="off"
+                       autofocus="autofocus"
+                       placeholder="메시지를 입력하세요..."
+                       :disabled="!enable"
+                       x-effect="if(enable) $el.focus()"/>
+                <button type="submit" 
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-white bg-indigo-600 rounded-lg px-4 py-2 hover:bg-indigo-700 transition-colors duration-200"
+                        :disabled="!enable">
+                    전송
+                </button>
+            </form>
+        </div>
     </div>
-
 {% endblock %}

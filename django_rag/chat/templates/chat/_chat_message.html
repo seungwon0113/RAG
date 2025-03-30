@@ -8,13 +8,20 @@
             aiEl.innerHTML = window.markdownToHtml(markdownText);
         }
     }"
-    x-init="convert();">
+    x-init="convert();"
+    class="space-y-4">
 
-    <div class="chat chat-start">
-        <div class="chat-bubble">{{ human_message }}</div>
+    <div class="flex justify-start">
+        <div class="bg-white rounded-2xl rounded-tl-none px-4 py-2 shadow-sm max-w-[80%]">
+            <p class="text-gray-800">{{ human_message }}</p>
+        </div>
     </div>
+
     <div class="markdown hidden">{{ ai_message }}</div>
-    <div class="chat chat-end">
-        <div class="chat-bubble ai"></div>
+    
+    <div class="flex justify-end">
+        <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none px-4 py-2 shadow-sm max-w-[80%]">
+            <div class="ai prose prose-sm prose-invert"></div>
+        </div>
     </div>
 </div>
