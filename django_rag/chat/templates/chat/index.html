@@ -11,16 +11,19 @@
              class="flex-1 overflow-y-auto"
              hx-on::after-settle="
                  this.scrollTo({ top: this.scrollHeight, behavior: 'smooth' });
-                 htmx.trigger(this, 'enable');
+                 {# htmx.trigger(this, 'enable'); #}
              ">
         </div>
 
         <form id="form"
+              hx-ext="streaming-html"
               hx-post="{% url 'chat:reply' %}"
               hx-target="#messages"
               hx-swap="beforeend"
               hx-on::before-request="htmx.trigger(this, 'disable');"
-              hx-on::after-request="this.reset();">
+              {# hx-on::after-request="this.reset();" #}
+              hx-on:chunk="if (event.detail.count === 0) { this.reset(); htmx.trigger(this, 'enable'); }"
+        >
             {% csrf_token %}
             <input type="text" name="message"
                    class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
