@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+    <div class="flex flex-col h-[calc(100vh-4rem)] w-full p-2"
+         x-data="{ enable: true }"
+         @enable="enable = true"
+         @disable="enable = false">
+
+        <div id="messages"
+             class="flex-1 overflow-y-auto"
+             hx-on::after-settle="
+                 this.scrollTo({ top: this.scrollHeight, behavior: 'smooth' });
+                 {# htmx.trigger(this, 'enable'); #}
+             ">
+        </div>
+
+        <form id="form"
+              hx-ext="streaming-html"
+              hx-post="{% url 'chat:reply' %}"
+              hx-target="#messages"
+              hx-swap="beforeend"
+              hx-on::before-request="htmx.trigger(this, 'disable');"
+              {# hx-on::after-request="this.reset();" #}
+              hx-on:chunk="if (event.detail.count === 0) { this.reset(); htmx.trigger(this, 'enable'); }"
+        >
+            {% csrf_token %}
+            <input type="text" name="message"
+                   class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
+                   autocomplete="off"
+                   autofocus="autofocus"
+                   placeholder="메시지를 입력하세요..."
+                   :disabled="!enable"
+                   x-effect="if(enable) $el.focus()"/>
+        </form>
+    </div>
+
+{% endblock %}

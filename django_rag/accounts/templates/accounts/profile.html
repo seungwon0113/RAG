@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <h2>{{ user }}'s 프로필</h2>
+
+    <table>
+        <tbody>
+        <tr>
+            <th>email</th>
+            <td>{{ user.email|default:"&dash;" }}</td>
+        </tr>
+        <tr>
+            <th>last_login</th>
+            <td>{{ user.last_login|date:"Y년 m월 d일" }}</td>
+        </tr>
+        <tr>
+            <th>date_joined</th>
+            <td>{{ user.date_joined|date:"Y년 m월 d일" }}</td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

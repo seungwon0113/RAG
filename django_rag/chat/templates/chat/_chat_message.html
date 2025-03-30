@@ -1,0 +1,20 @@
+<div {% if message_pair_id %}id="{{ message_pair_id }}"{% endif %}
+    {% if chunk_index > 0 %}hx-swap-oob="true"{% endif %}
+    x-data="{
+        convert() {
+            const markdownText = this.$el.querySelector('.markdown')?.textContent;
+            console.log('markdownText :', markdownText);
+            const aiEl = this.$el.querySelector('.ai');
+            aiEl.innerHTML = window.markdownToHtml(markdownText);
+        }
+    }"
+    x-init="convert();">
+
+    <div class="chat chat-start">
+        <div class="chat-bubble">{{ human_message }}</div>
+    </div>
+    <div class="markdown hidden">{{ ai_message }}</div>
+    <div class="chat chat-end">
+        <div class="chat-bubble ai"></div>
+    </div>
+</div>

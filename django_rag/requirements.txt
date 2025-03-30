@@ -1,0 +1,9 @@
+django~=5.1.0
+daphne
+channels
+
+django-debug-toolbar
+django-environ
+django-extensions
+
+colorlog
