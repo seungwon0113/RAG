@@ -10,15 +10,23 @@ env_path = BASE_DIR / ".env"
 if env_path.is_file():
     env.read_env(env_path, overwrite=True)
 
-OPENAI_API_KEY = env.str("OPENAI_API_KEY")
+# 디폴트 값으로 사용할 OpenAI API key와 BASE_URL
+OPENAI_API_KEY = env.str("OPENAI_API_KEY", default=None)
+OPENAI_BASE_URL = env.str("OPENAI_BASE_URL", default=None)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# RAG에서 사용할 OpenAI API key와 BASE_URL
+RAG_OPENAI_API_KEY = env.str("RAG_OPENAI_API_KEY", default=OPENAI_API_KEY)
+RAG_OPENAI_BASE_URL = env.str("RAG_OPENAI_BASE_URL", default=OPENAI_BASE_URL)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-rjf@v2^+15i76=d$+2(ew-zcv=580+c9c(x+(93beqfhonty$n"
+# RAG에서 사용할 임베딩 모델
+RAG_EMBEDDING_MODEL = env.str("RAG_EMBEDDING_MODEL", default="text-embedding-3-small")
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# RAG에서 사용할 임베딩 모델의 차원수
+RAG_EMBEDDING_DIMENSIONS = env.int("RAG_EMBEDDING_DIMENSIONS", default=1536)
+
+
+SECRET_KEY = env.str("SECRET_KEY")
+
 DEBUG = env.bool("DEBUG", True)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
@@ -80,11 +88,11 @@ ASGI_APPLICATION = "mysite.asgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rag_db',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': env.str('DB_NAME'),
+        'USER': env.str('DB_USER'),
+        'PASSWORD': env.str('DB_PASSWORD'),
+        'HOST': env.str('DB_HOST'),
+        'PORT': env.str('DB_PORT'),
     }
 }
 

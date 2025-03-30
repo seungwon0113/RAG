@@ -64,8 +64,10 @@ class VectorStore(list):
             pickle.dump(self, f)
             # print(f"saved vector store to {vector_store_path}")
             logger.debug("saved vector store to %s", vector_store_path)
-
-    def search(self, question: str, top_k: int = 4) -> List[Document]:
+    
+    # 벡터 저장소에서 질문에 대한 답변을 찾는 함수
+    # top_k는 찾을 답변의 개수
+    def search(self, question: str, top_k: int = 10) -> List[Document]:
         # pip install -U scikit-learn
         response = client.embeddings.create(model=self.embedding_model, input=question)
         question_embedding = response.data[0].embedding
@@ -74,15 +76,32 @@ class VectorStore(list):
         # 모든 데이터와 코사인 유사도 계산
         similarities = cosine_similarity([question_embedding], embedding_list)[0]
 
-        # 유사도가 높은 순으로 정렬하여 top_k 개 선택
-        top_indices = np.argsort(similarities)[::-1][:top_k]
+        # 유사도가 높은 순으로 정렬
+        indices = np.argsort(similarities)[::-1]
+        
+        # 중복 제거를 위한 세트
+        seen_menus = set()
+        filtered_indices = []
+        
+        # 중복되지 않은 메뉴만 선택
+        for idx in indices:
+            menu_text = self[idx]["text"]
+            # 메뉴 이름 추출 (첫 줄의 첫 단어)
+            menu_name = menu_text.split('\n')[0].split()[0] if menu_text else ''
+            
+            if menu_name not in seen_menus:
+                seen_menus.add(menu_name)
+                filtered_indices.append(idx)
+                
+            if len(filtered_indices) >= top_k:
+                break
 
         return [
             Document(
                 metadata={"similarity": similarities[idx]},
                 page_content=self[idx]["text"],
             )
-            for idx in top_indices
+            for idx in filtered_indices
         ]
 
 
