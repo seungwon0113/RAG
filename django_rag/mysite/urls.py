@@ -6,6 +6,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("chat/", include("chat.urls")),
+    path("posts/", include("posts.urls")),
 ]
 
 if apps.is_installed("debug_toolbar"):

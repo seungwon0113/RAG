@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>posts</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="/static/streaming-html.js"></script>
+    <style>
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .chat-header {
+            padding: 10px;
+            background: #4a5568;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chat-input {
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>posts</h1>
+    <ul>
+        {% for post in posts %}
+            <li>{{ post.title }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- 챗봇 토글 버튼 -->
+    <button class="chat-toggle" onclick="toggleChat()">
+        💬
+    </button>
+
+    <!-- 챗봇 위젯 -->
+    <div class="chat-widget" id="chat-widget">
+        <div class="chat-header">
+            <span>RAG 챗봇</span>
+            <button onclick="toggleChat()" style="background: none; border: none; color: white; cursor: pointer;">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+        </div>
+        <div class="chat-input">
+            <form hx-post="/chat/reply/"
+                  hx-target="#chat-messages"
+                  hx-swap="beforeend"
+                  hx-ext="streaming-html">
+                <input type="text" name="message" placeholder="메시지를 입력하세요...">
+                <button type="submit">전송</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const widget = document.getElementById('chat-widget');
+            const currentDisplay = widget.style.display;
+            widget.style.display = currentDisplay === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
