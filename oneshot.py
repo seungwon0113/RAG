@@ -15,6 +15,7 @@ def print_prices(input_tokens: int, output_tokens: int) -> None:
     print("output: tokens {}, krw {:4f}".format(output_tokens, output_price))
 
 
+
 def make_ai_message(question: str) -> str:
     client = openai.Client(api_key=key)  # 명시적으로 키 지정
 
@@ -33,7 +34,6 @@ def make_ai_message(question: str) -> str:
 
 def main():
     지식 = open("backdabang.txt", "rt", encoding="utf-8").read()
-
     question = f"""넌 AI Assistant. 모르는 건 모른다고 대답.
 
 [[빽다방 메뉴 정보]]

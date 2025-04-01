@@ -17,8 +17,11 @@ def load() -> List[Document]:
 # 문서 쪼개기
 def split(src_doc_list: List[Document]) -> List[Document]:
     new_doc_list = []
+    # 문서 쪼개기
     for doc in src_doc_list:
+        # load한 문서를 줄바꿈 기준으로 쪼개기
         for new_page_content in doc.page_content.split("\n\n"):
+            # 쪼개진 문서를 새로운 문서 리스트에 추가
             new_doc_list.append(
                 Document(
                     metadata=doc.metadata.copy(),
@@ -31,7 +34,7 @@ def split(src_doc_list: List[Document]) -> List[Document]:
 doc_list = load()
 print(f"loaded {len(doc_list)} documents")
 
-# 문서 쪼개기
+# load한 문서 쪼개기
 doc_split = split(doc_list)
 print(f"split {len(doc_split)} documents")
 pprint(doc_split)
