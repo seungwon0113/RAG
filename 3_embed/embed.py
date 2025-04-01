@@ -1,11 +1,12 @@
 # OpenAI API를 활용한 벡터 데이터 생성 예시
 
 from typing import List, Dict
-import openai
-from environ import Env
+import openai, os
+from dotenv import load_dotenv
 
-env = Env()
-env.read_env(overwrite=True)  # .env 파일을 환경변수로 로딩합니다.
+load_dotenv()
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def embed_text(text: str) -> List[float]:
     client = openai.Client()
@@ -48,6 +49,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 similarity_list = cosine_similarity([question_vector], vector_list)[0]
 print(similarity_list) # numpy 배열 타입
+
 '''
 [결과]
 커피와 유사도가 높은 데이터

@@ -1,6 +1,11 @@
 from typing import List, Dict
 from langchain_core.documents import Document
 import openai
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 예전에는 `langchain` 라이브러리 기본에서 다양한 `Loader`를 지원했지만,
 # 요즘은 `langchain-community` 라이브러리 등 외부 라이브러리로 지원하는 경우가 많습니다.
@@ -53,7 +58,6 @@ doc_list = split(doc_list)
 print(f"split into {len(doc_list)} documents")
 # pprint(doc_list)
 
-# 문서 임베딩
 vector_store = embed(doc_list)
 print(f"created {len(vector_store)} items in vector store")
 for row in vector_store:

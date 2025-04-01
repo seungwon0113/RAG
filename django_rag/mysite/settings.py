@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "accounts",
     "chat",
+    "posts",
 ]
 
 MIDDLEWARE = [

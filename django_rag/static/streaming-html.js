@@ -89,6 +89,16 @@
             if (!done) {
               // 청크를 디코드합니다.
               let responseHtml = textDecoder.decode(value);
+              
+              // 마크다운을 HTML로 변환하기 전에 유효성 검사
+              try {
+                if (typeof window.markdownToHtml === 'function') {
+                  responseHtml = window.markdownToHtml(responseHtml);
+                }
+              } catch (error) {
+                console.error("마크다운 변환 중 오류 발생:", error);
+              }
+              
               // 스왑 사양을 가져옵니다.
               const swapSpec = api.getSwapSpecification(currentElement);
 
