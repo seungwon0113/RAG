@@ -35,6 +35,7 @@ class VectorStore(list):
     embedding_model = "text-embedding-3-small"
 
     @classmethod
+    # 본 embed 함수 make 메서드로 수정
     def make(cls, doc_list: List[Document]) -> "VectorStore":
         vector_store = cls()
 
@@ -86,6 +87,7 @@ def main():
         print(f"loaded {len(doc_list)} documents")
         doc_list = split(doc_list)
         print(f"split into {len(doc_list)} documents")
+        # vector_store = embed(doc_list) >> 임베드 함수 주석 처리하고 클래스 호출
         vector_store = VectorStore.make(doc_list)
         vector_store.save(vector_store_path)
         print(f"created {len(vector_store)} items in vector store")
