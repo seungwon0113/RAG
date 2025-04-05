@@ -27,12 +27,15 @@
 출처 : https://python.langchain.com/docs/tutorials/rag/
 
 ---
-### OpenAI API 가격 (2025년 1월 기준)
+### OpenAI API 가격 (2025년 4월 기준)
 
-| Model | Input (100만 토큰 당) | Output (100만 토큰 당) |
-|-------|----------------------|---------------------|
-| OpenAI gpt-4o-mini | $0.15 | $0.6 |
-| OpenAI gpt-4o | $2.5 | $10.0 |
-| OpenAI gpt-o1-mini | $3.0 | $12.0 |
-| OpenAI gpt-o1 | $0.15 | $60.0 |
-| OpenAI gpt-4o-audio-preview | $40.0 | $80.0 |
+| 모델 | 입력 (100만 토큰당) | 캐시된 입력 (100만 토큰당) | 출력 (100만 토큰당) |
+| --- | --- | --- | --- |
+| **OpenAI gpt-4o-mini** | $0.15 | $0.075 | $0.6 |
+| **OpenAI gpt-4o** | $2.50 | $1.25 | $10.0 |
+| **OpenAI gpt-o1-mini** | $3.00 | - | $12.0 |
+| **OpenAI gpt-o1** | $0.15 | - | $60.0 |
+| **OpenAI gpt-4o-audio-preview** | $40.0 | - | $80.0 |
+| **OpenAI o1** | $15.00 | $7.50 | $60.0 |
+| **OpenAI o3-mini** | $1.10 | $0.55 | $4.40 |
+| **GPT-4.5** | $75.00 | $37.50 | $150.0 |
