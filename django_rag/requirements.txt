@@ -97,3 +97,4 @@ wcwidth==0.2.13
 yarl==1.18.3
 zope.interface==7.2
 zstandard==0.23.0
+django-lifecycle==1.0.0

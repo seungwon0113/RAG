@@ -2,6 +2,8 @@ from pathlib import Path
 from django.conf import settings
 from django.core.management import BaseCommand
 from chat import rag
+from chat.models import PaikdabangMenuDocument
+from tqdm import tqdm
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
@@ -22,3 +24,10 @@ class Command(BaseCommand):
 
         vector_store = rag.VectorStore.make(doc_list)
         vector_store.save(settings.VECTOR_STORE_PATH)
+        
+        for doc in tqdm(doc_list):
+            paikdabang_menu_document = PaikdabangMenuDocument(
+                page_content=doc.page_content,
+                metadata=doc.metadata,
+            )
+            paikdabang_menu_document.save()  # 저장 시 on_before_create 훅에 의해 임베딩 자동 생성
